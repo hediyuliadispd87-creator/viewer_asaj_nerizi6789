@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Halaman Ujian — Peserta</title>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -26,6 +26,7 @@
     --success-bg: #ecfdf5;
     --sans: 'Plus Jakarta Sans', sans-serif;
     --radius: 12px;
+    --header-collapsed-h: 48px;
   }
 
   body {
@@ -36,21 +37,22 @@
     overflow: hidden;
   }
 
-  /* LOGIN SCREEN */
+  /* ─── LOGIN ─── */
   .login-screen {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 20px;
     background: linear-gradient(135deg, #eff6ff 0%, #f8fafc 50%, #ecfdf5 100%);
+    overflow-y: auto;
   }
 
   .login-card {
     background: var(--white);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 40px;
+    padding: 32px 28px;
     width: 100%;
     max-width: 440px;
     box-shadow: 0 4px 24px rgba(0,0,0,0.06);
@@ -58,54 +60,39 @@
 
   .login-logo {
     text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 24px;
   }
 
   .login-logo-icon {
-    width: 60px;
-    height: 60px;
+    width: 56px; height: 56px;
     background: var(--accent);
     border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 14px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 12px;
   }
 
-  .login-logo-icon svg { width: 28px; height: 28px; color: white; }
-
-  .login-title {
-    font-size: 22px;
-    font-weight: 700;
-    color: var(--text);
-    margin-bottom: 4px;
-  }
-
-  .login-sub {
-    font-size: 13px;
-    color: var(--muted);
-  }
+  .login-logo-icon svg { width: 26px; height: 26px; color: white; }
+  .login-title { font-size: 20px; font-weight: 700; margin-bottom: 3px; }
+  .login-sub { font-size: 13px; color: var(--muted); }
 
   .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 12px;
-    margin-bottom: 16px;
+    margin-bottom: 14px;
   }
 
-  .form-group { margin-bottom: 16px; }
+  .form-group { margin-bottom: 14px; }
   .form-group-inline { margin-bottom: 0; }
 
   label {
     display: block;
     font-size: 13px;
     font-weight: 600;
-    color: var(--text);
-    margin-bottom: 6px;
+    margin-bottom: 5px;
   }
 
-  input[type="text"],
-  select {
+  input[type="text"], select {
     width: 100%;
     padding: 11px 14px;
     border: 1.5px solid var(--border);
@@ -115,29 +102,23 @@
     color: var(--text);
     background: var(--bg);
     outline: none;
-    transition: border-color 0.15s;
+    transition: border-color .15s;
     appearance: none;
     -webkit-appearance: none;
   }
 
-  input[type="text"]:focus,
-  select:focus {
+  input[type="text"]:focus, select:focus {
     border-color: var(--accent);
     background: var(--white);
   }
 
-  .select-wrapper {
-    position: relative;
-  }
-
+  .select-wrapper { position: relative; }
   .select-wrapper::after {
     content: '';
     position: absolute;
-    right: 13px;
-    top: 50%;
+    right: 13px; top: 50%;
     transform: translateY(-50%);
-    width: 0;
-    height: 0;
+    width: 0; height: 0;
     border-left: 5px solid transparent;
     border-right: 5px solid transparent;
     border-top: 5px solid var(--muted);
@@ -155,8 +136,8 @@
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
-    margin-top: 8px;
+    transition: all .15s;
+    margin-top: 6px;
   }
 
   .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
@@ -170,133 +151,181 @@
     padding: 12px 14px;
     font-size: 12px;
     color: #1d4ed8;
-    margin-top: 16px;
-    line-height: 1.5;
+    margin-top: 14px;
+    line-height: 1.55;
   }
 
   .info-box strong { display: block; margin-bottom: 2px; }
 
-  /* EXAM SCREEN */
+  /* ─── EXAM SCREEN ─── */
   .exam-screen {
     display: none;
     flex-direction: column;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
+    position: relative;
   }
 
+  /* ─── HEADER ─── */
   .exam-header {
     background: var(--white);
     border-bottom: 1px solid var(--border);
-    padding: 0 20px;
     flex-shrink: 0;
     z-index: 50;
+    transition: max-height .35s cubic-bezier(.4,0,.2,1);
+    overflow: hidden;
   }
 
-  .exam-header-inner {
+  /* Collapsed state */
+  .exam-header.collapsed {
+    max-height: var(--header-collapsed-h) !important;
+  }
+
+  /* ─── Collapsed bar (always visible) ─── */
+  .header-collapsed-bar {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 56px;
-    max-width: 100%;
+    height: var(--header-collapsed-h);
+    padding: 0 14px;
+    gap: 8px;
   }
 
-  .exam-brand {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .exam-brand-icon {
-    width: 30px;
-    height: 30px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .exam-brand-icon svg { width: 15px; height: 15px; color: white; }
-  .exam-brand-name { font-size: 14px; font-weight: 700; }
-
-  .header-center {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  .peserta-chip {
+  .collapsed-left {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 5px 12px 5px 6px;
+    flex: 1;
+    min-width: 0;
   }
 
-  .peserta-avatar-sm {
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: var(--accent-bg);
-    border: 1.5px solid var(--accent);
+  .exam-brand-icon {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .exam-brand-icon svg { width: 14px; height: 14px; color: white; }
+
+  .collapsed-name {
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .collapsed-right {
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: 700;
-    color: var(--accent);
+    gap: 8px;
+    flex-shrink: 0;
   }
 
-  .peserta-chip-text { font-size: 12px; font-weight: 600; }
-  .peserta-chip-id { font-size: 11px; color: var(--muted); }
-
-  /* Kelas & Ruangan chip */
-  .info-chip {
+  .timer-badge-sm {
     display: flex;
     align-items: center;
     gap: 5px;
+    font-size: 13px;
+    font-weight: 700;
     background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 20px;
-    padding: 5px 10px;
-    font-size: 11px;
-    color: var(--muted);
-    font-weight: 600;
+    padding: 4px 10px;
   }
 
-  .info-chip svg { width: 12px; height: 12px; flex-shrink: 0; }
-  .info-chip span { color: var(--text); }
+  .timer-badge-sm svg { width: 12px; height: 12px; color: var(--muted); }
+
+  .violation-badge-sm {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--danger-bg);
+    border: 1px solid #fecaca;
+    border-radius: 20px;
+    padding: 4px 9px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--danger);
+  }
+
+  .toggle-btn {
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background .15s;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .toggle-btn:active { background: var(--border); }
+
+  .toggle-btn svg {
+    width: 14px; height: 14px;
+    color: var(--muted);
+    transition: transform .35s cubic-bezier(.4,0,.2,1);
+  }
+
+  .exam-header.collapsed .toggle-btn svg { transform: rotate(180deg); }
+
+  /* ─── Expanded detail panel ─── */
+  .header-detail {
+    padding: 0 14px 12px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .detail-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 9px 12px;
+  }
+
+  .detail-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    margin-bottom: 2px;
+  }
+
+  .detail-value {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .detail-card.full { grid-column: 1 / -1; }
 
   .status-indicator {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 11px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 12px;
     font-weight: 600;
-    transition: all 0.3s;
+    transition: all .3s;
   }
 
-  .status-indicator.aman {
-    background: var(--success-bg);
-    color: var(--success);
-    border: 1px solid #a7f3d0;
-  }
-
-  .status-indicator.warning {
-    background: var(--warn-bg);
-    color: var(--warn);
-    border: 1px solid #fde68a;
-  }
-
-  .status-indicator.danger {
-    background: var(--danger-bg);
-    color: var(--danger);
-    border: 1px solid #fecaca;
-  }
+  .status-indicator.aman   { background: var(--success-bg); color: var(--success); border: 1px solid #a7f3d0; }
+  .status-indicator.warning{ background: var(--warn-bg);    color: var(--warn);    border: 1px solid #fde68a; }
+  .status-indicator.danger { background: var(--danger-bg);  color: var(--danger);  border: 1px solid #fecaca; }
 
   .status-dot {
     width: 6px; height: 6px;
@@ -305,46 +334,9 @@
     animation: pulse 1.5s ease infinite;
   }
 
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
-  }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 
-  .header-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .violation-badge {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    background: var(--danger-bg);
-    border: 1px solid #fecaca;
-    border-radius: 20px;
-    padding: 5px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--danger);
-  }
-
-  .timer-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--text);
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 5px 12px;
-  }
-
-  .timer-badge svg { width: 14px; height: 14px; color: var(--muted); }
-
-  /* WEBVIEW WRAPPER */
+  /* ─── WEBVIEW ─── */
   .webview-wrapper {
     flex: 1;
     display: flex;
@@ -354,107 +346,88 @@
   }
 
   .webview-frame {
-    width: 100%;
-    height: 100%;
-    border: none;
-    display: block;
+    width: 100%; height: 100%;
+    border: none; display: block;
   }
 
   .iframe-loading {
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background: var(--bg);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    z-index: 5;
-    transition: opacity 0.3s;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 14px; z-index: 5;
+    transition: opacity .3s;
   }
 
-  .iframe-loading.hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
+  .iframe-loading.hidden { opacity: 0; pointer-events: none; }
 
   .spinner {
-    width: 36px; height: 36px;
+    width: 34px; height: 34px;
     border: 3px solid var(--border);
     border-top-color: var(--accent);
     border-radius: 50%;
-    animation: spin 0.8s linear infinite;
+    animation: spin .8s linear infinite;
   }
 
-  @keyframes spin { to { transform: rotate(360deg); } }
-
+  @keyframes spin { to{transform:rotate(360deg)} }
   .iframe-loading p { font-size: 13px; color: var(--muted); font-weight: 500; }
 
-  /* WARNING OVERLAY */
+  /* ─── WARNING OVERLAY ─── */
   .warning-overlay {
     display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(239,68,68,0.95);
+    position: fixed; inset: 0;
+    background: rgba(239,68,68,.95);
     z-index: 999;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 32px;
-    animation: fadeOverlay 0.2s ease;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 28px;
+    animation: fadeOverlay .2s ease;
   }
 
-  @keyframes fadeOverlay {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
+  @keyframes fadeOverlay { from{opacity:0} to{opacity:1} }
   .warning-overlay.show { display: flex; }
 
   .warning-icon {
-    width: 80px; height: 80px;
-    background: rgba(255,255,255,0.15);
+    width: 72px; height: 72px;
+    background: rgba(255,255,255,.15);
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 24px;
-    animation: shake 0.5s ease;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+    animation: shake .5s ease;
   }
 
   @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-8px); }
-    40% { transform: translateX(8px); }
-    60% { transform: translateX(-5px); }
-    80% { transform: translateX(5px); }
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-5px)}
+    80%{transform:translateX(5px)}
   }
 
-  .warning-icon svg { width: 40px; height: 40px; color: white; }
-  .warning-title { font-size: 28px; font-weight: 700; color: white; margin-bottom: 8px; }
-  .warning-msg { font-size: 15px; color: rgba(255,255,255,0.85); max-width: 400px; line-height: 1.6; margin-bottom: 24px; }
-
+  .warning-icon svg { width: 36px; height: 36px; color: white; }
+  .warning-title { font-size: 24px; font-weight: 700; color: white; margin-bottom: 8px; }
+  .warning-msg { font-size: 14px; color: rgba(255,255,255,.85); max-width: 360px; line-height: 1.6; margin-bottom: 20px; }
   .warning-count {
-    background: rgba(255,255,255,0.15);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 13px;
-    font-weight: 600;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.3);
+    color: white; padding: 7px 18px;
+    border-radius: 20px; font-size: 13px; font-weight: 600;
   }
 
-  .timer-badge.danger {
+  .timer-badge-sm.danger {
     background: var(--danger-bg);
     border-color: #fecaca;
     color: var(--danger);
     animation: timerPulse 1s ease infinite;
   }
 
-  @keyframes timerPulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
+  @keyframes timerPulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 480px) {
+    .login-card { padding: 24px 20px; }
+    .form-row { grid-template-columns: 1fr; gap: 14px; }
+    .header-detail { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -480,7 +453,7 @@
 
     <div class="form-group">
       <label for="inputId">Nomor Peserta</label>
-      <input type="text" id="inputId" placeholder="Contoh: 12345" autocomplete="off">
+      <input type="text" id="inputId" placeholder="Contoh: 12345" autocomplete="off" inputmode="numeric">
     </div>
 
     <div class="form-row">
@@ -489,16 +462,7 @@
         <div class="select-wrapper">
           <select id="inputKelas">
             <option value="">-- Pilih Kelas --</option>
-            <option value="IX-A">IX-A</option>
-            <option value="IX-B">IX-B</option>
-            <option value="IX-C">IX-C</option>
-            <option value="IX-D">IX-D</option>
-            <option value="IX-E">IX-E</option>
-            <option value="IX-F">IX-F</option>
-            <option value="IX-G">IX-G</option>
-            <option value="IX-H">IX-H</option>
-            <option value="IX-I">IX-I</option>
-            <option value="IX-J">IX-J</option>
+            <option>IX-C</option><option>IX-D</option><option>IX-E</option>
           </select>
         </div>
       </div>
@@ -507,26 +471,10 @@
         <div class="select-wrapper">
           <select id="inputRuangan">
             <option value="">-- Pilih Ruangan --</option>
-            <option value="Ruang 01">Ruang 01</option>
-            <option value="Ruang 02">Ruang 02</option>
-            <option value="Ruang 03">Ruang 03</option>
-            <option value="Ruang 04">Ruang 04</option>
-            <option value="Ruang 05">Ruang 05</option>
-            <option value="Ruang 06">Ruang 06</option>
-            <option value="Ruang 07">Ruang 07</option>
-            <option value="Ruang 08">Ruang 08</option>
-            <option value="Ruang 09">Ruang 09</option>
-            <option value="Ruang 10">Ruang 10</option>
-            <option value="Ruang 11">Ruang 11</option>
-            <option value="Ruang 12">Ruang 12</option>
-            <option value="Ruang 13">Ruang 13</option>
-            <option value="Ruang 14">Ruang 14</option>
-            <option value="Ruang 15">Ruang 15</option>
-            <option value="Ruang 16">Ruang 16</option>
-            <option value="Ruang 17">Ruang 17</option>
-            <option value="Ruang 18">Ruang 18</option>
-            <option value="Ruang 19">Ruang 19</option>
-            <option value="Ruang 20">Ruang 20</option>
+            <option>Ruang 05</option>
+            <option>Ruang 06</option>
+            <option>Ruang 07</option>
+            <option>Ruang 08</option>
           </select>
         </div>
       </div>
@@ -543,62 +491,62 @@
 
 <!-- EXAM SCREEN -->
 <div class="exam-screen" id="examScreen">
-  <header class="exam-header">
-    <div class="exam-header-inner">
 
-      <div class="exam-brand">
+  <header class="exam-header" id="examHeader">
+
+    <!-- Always-visible bar -->
+    <div class="header-collapsed-bar">
+      <div class="collapsed-left">
         <div class="exam-brand-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
         </div>
-        <div class="exam-brand-name">Ujian Online</div>
+        <div class="collapsed-name" id="collapsedName">Ujian Online</div>
       </div>
 
-      <div class="header-center">
-        <div class="peserta-chip">
-          <div class="peserta-avatar-sm" id="pesertaAvatar">?</div>
-          <div>
-            <div class="peserta-chip-text" id="displayNama">—</div>
-            <div class="peserta-chip-id" id="displayId">—</div>
-          </div>
+      <div class="collapsed-right">
+        <div class="violation-badge-sm">
+          ⚠️ <span id="violationCount">0</span>
         </div>
-
-        <div class="info-chip">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-          </svg>
-          <span id="displayKelas">—</span>
-        </div>
-
-        <div class="info-chip">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-            <polyline points="9 22 9 12 15 12 15 22"/>
-          </svg>
-          <span id="displayRuangan">—</span>
-        </div>
-
-        <div class="status-indicator aman" id="statusIndicator">
-          <div class="status-dot"></div>
-          <span id="statusText">Sedang Ujian</span>
-        </div>
-      </div>
-
-      <div class="header-right">
-        <div class="violation-badge">
-          ⚠️ <span id="violationCount">0</span> Pelanggaran
-        </div>
-        <div class="timer-badge" id="timerBadge">
+        <div class="timer-badge-sm" id="timerBadgeSm">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
           </svg>
           <span id="timerDisplay">90:00</span>
         </div>
+        <button class="toggle-btn" id="toggleBtn" onclick="toggleHeader()" aria-label="Toggle info peserta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="18 15 12 9 6 15"/>
+          </svg>
+        </button>
       </div>
-
     </div>
+
+    <!-- Expandable detail -->
+    <div class="header-detail">
+      <div class="detail-card">
+        <div class="detail-label">Nama</div>
+        <div class="detail-value" id="displayNama">—</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-label">No. Peserta</div>
+        <div class="detail-value" id="displayId">—</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-label">Kelas</div>
+        <div class="detail-value" id="displayKelas">—</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-label">Ruangan</div>
+        <div class="detail-value" id="displayRuangan">—</div>
+      </div>
+      <div class="status-indicator aman full" id="statusIndicator">
+        <div class="status-dot"></div>
+        <span id="statusText">Sedang Ujian</span>
+      </div>
+    </div>
+
   </header>
 
   <!-- WEBVIEW -->
@@ -635,12 +583,12 @@
   const firebaseConfig = {
   apiKey: "AIzaSyCGozv28dZfRzCEHZdjM99QgWEIYAcFlYw",
   authDomain: "pengawas-asaj2.firebaseapp.com",
+  databaseURL: "https://pengawas-asaj2-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "pengawas-asaj2",
   storageBucket: "pengawas-asaj2.firebasestorage.app",
   messagingSenderId: "756103404926",
-  appId: "1:756103404926:web:032e5362e45385ce54672f",
-  databaseURL: "https://pengawas-asaj2-default-rtdb.asia-southeast1.firebasedatabase.app/"
-  };
+  appId: "1:756103404926:web:032e5362e45385ce54672f"
+    };
 
   const EXAM_URL = "https://hediyuliadispd87-creator.github.io/viewer_asaj_nerizi_new/";
 
@@ -649,55 +597,71 @@
   let violations = 0;
   let timerSeconds = 90 * 60;
   let timerInterval;
+  let headerExpanded = false; // start collapsed
 
+  /* ─── TOGGLE HEADER ─── */
+  function toggleHeader() {
+    const header = document.getElementById('examHeader');
+    headerExpanded = !headerExpanded;
+    if (headerExpanded) {
+      header.style.maxHeight = header.scrollHeight + 'px';
+      header.classList.remove('collapsed');
+    } else {
+      header.classList.add('collapsed');
+      header.style.maxHeight = '';
+    }
+  }
+
+  function initHeaderHeight() {
+    // measure expanded height then collapse
+    const header = document.getElementById('examHeader');
+    const full = header.scrollHeight;
+    header.dataset.fullHeight = full;
+    header.classList.add('collapsed');
+  }
+
+  /* ─── FIREBASE ─── */
   function initFirebase() {
     try {
       firebase.initializeApp(firebaseConfig);
       db = firebase.database();
-    } catch(e) {
-      console.error('Firebase error:', e);
-    }
+    } catch(e) { console.error('Firebase error:', e); }
   }
 
   function getInitials(name) {
-    return name ? name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase() : '?';
+    return name ? name.split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase() : '?';
   }
 
+  /* ─── START EXAM ─── */
   function mulaiUjian() {
     const nama    = document.getElementById('inputNama').value.trim();
     const id      = document.getElementById('inputId').value.trim();
     const kelas   = document.getElementById('inputKelas').value;
     const ruangan = document.getElementById('inputRuangan').value;
 
-    if (!nama || !id) {
-      alert('Mohon isi nama dan nomor ujian terlebih dahulu.');
-      return;
-    }
-    if (!kelas) {
-      alert('Mohon pilih kelas terlebih dahulu.');
-      return;
-    }
-    if (!ruangan) {
-      alert('Mohon pilih ruangan terlebih dahulu.');
-      return;
-    }
+    if (!nama || !id) { alert('Mohon isi nama dan nomor ujian terlebih dahulu.'); return; }
+    if (!kelas)       { alert('Mohon pilih kelas terlebih dahulu.'); return; }
+    if (!ruangan)     { alert('Mohon pilih ruangan terlebih dahulu.'); return; }
 
-    pesertaNama    = nama;
-    pesertaId      = id;
-    pesertaKelas   = kelas;
-    pesertaRuangan = ruangan;
+    pesertaNama = nama; pesertaId = id; pesertaKelas = kelas; pesertaRuangan = ruangan;
 
     document.getElementById('loginScreen').style.display = 'none';
     const examScreen = document.getElementById('examScreen');
     examScreen.style.display = 'flex';
 
+    // Update collapsed bar
+    document.getElementById('collapsedName').textContent = nama;
+
+    // Update detail panel
     document.getElementById('displayNama').textContent    = nama;
-    document.getElementById('displayId').textContent      = 'ID: ' + id;
-    document.getElementById('pesertaAvatar').textContent  = getInitials(nama);
+    document.getElementById('displayId').textContent      = id;
     document.getElementById('displayKelas').textContent   = kelas;
     document.getElementById('displayRuangan').textContent = ruangan;
 
     document.getElementById('examFrame').src = EXAM_URL;
+
+    // Init header collapse after DOM is rendered
+    requestAnimationFrame(() => { requestAnimationFrame(initHeaderHeight); });
 
     registerPeserta();
     startTimer();
@@ -710,46 +674,29 @@
     setTimeout(() => { loading.style.display = 'none'; }, 300);
   }
 
+  /* ─── FIREBASE HELPERS ─── */
   function registerPeserta() {
     if (!db) return;
     const key = pesertaId.replace(/[.#$[\]/]/g, '_');
     pesertaRef = db.ref('ujian/peserta/' + key);
-
     pesertaRef.set({
-      id       : pesertaId,
-      nama     : pesertaNama,
-      kelas    : pesertaKelas,
-      ruangan  : pesertaRuangan,
-      status   : 'aman',
-      violations: 0,
-      joinedAt : Date.now(),
-      lastUpdate: Date.now()
+      id: pesertaId, nama: pesertaNama, kelas: pesertaKelas, ruangan: pesertaRuangan,
+      status: 'aman', violations: 0, joinedAt: Date.now(), lastUpdate: Date.now()
     });
-
-    pesertaRef.onDisconnect().update({
-      status    : 'offline',
-      lastUpdate: Date.now()
-    });
+    pesertaRef.onDisconnect().update({ status: 'offline', lastUpdate: Date.now() });
   }
 
   function updateStatus(status) {
-    if (pesertaRef) {
-      pesertaRef.update({ status, lastUpdate: Date.now() });
-    }
-
+    if (pesertaRef) pesertaRef.update({ status, lastUpdate: Date.now() });
     const indicator = document.getElementById('statusIndicator');
     const text      = document.getElementById('statusText');
-    indicator.className = 'status-indicator';
-
+    indicator.className = 'status-indicator full';
     if (status === 'aman') {
-      indicator.classList.add('aman');
-      text.textContent = 'Sedang Ujian';
+      indicator.classList.add('aman');   text.textContent = 'Sedang Ujian';
     } else if (status === 'tab') {
-      indicator.classList.add('warning');
-      text.textContent = 'Buka Tab Lain';
+      indicator.classList.add('warning'); text.textContent = 'Buka Tab Lain';
     } else if (status === 'keluar') {
-      indicator.classList.add('danger');
-      text.textContent = 'Keluar Halaman';
+      indicator.classList.add('danger');  text.textContent = 'Keluar Halaman';
     }
   }
 
@@ -762,64 +709,36 @@
 
   function showWarning(type) {
     const overlay = document.getElementById('warningOverlay');
-    const title   = document.getElementById('warningTitle');
-    const msg     = document.getElementById('warningMsg');
-    const count   = document.getElementById('warningCount');
-
-    if (type === 'tab') {
-      title.textContent = 'Tab Lain Terdeteksi!';
-      msg.textContent   = 'Kamu membuka tab atau window lain saat ujian. Tindakan ini telah dicatat dan dilaporkan ke pengawas.';
-    } else {
-      title.textContent = 'Keluar dari Halaman!';
-      msg.textContent   = 'Kamu meninggalkan halaman ujian. Tindakan ini telah dicatat dan dilaporkan ke pengawas.';
-    }
-
-    count.textContent = `Pelanggaran ke-${violations}`;
+    document.getElementById('warningTitle').textContent =
+      type === 'tab' ? 'Tab Lain Terdeteksi!' : 'Keluar dari Halaman!';
+    document.getElementById('warningMsg').textContent =
+      type === 'tab'
+        ? 'Kamu membuka tab atau window lain saat ujian. Tindakan ini telah dicatat dan dilaporkan ke pengawas.'
+        : 'Kamu meninggalkan halaman ujian. Tindakan ini telah dicatat dan dilaporkan ke pengawas.';
+    document.getElementById('warningCount').textContent = `Pelanggaran ke-${violations}`;
     overlay.classList.add('show');
     setTimeout(() => overlay.classList.remove('show'), 3500);
   }
 
+  /* ─── MONITORING ─── */
   function setupMonitoring() {
     document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        updateStatus('tab');
-        addViolation('tab');
-      } else {
-        updateStatus('aman');
-      }
+      if (document.hidden) { updateStatus('tab'); addViolation('tab'); }
+      else { updateStatus('aman'); }
     });
 
     let iframeHasFocus = false;
+    document.getElementById('examFrame').addEventListener('mouseenter', () => { iframeHasFocus = true; });
+    document.getElementById('examFrame').addEventListener('mouseleave', () => { iframeHasFocus = false; });
 
-// Deteksi saat mouse masuk ke iframe (kemungkinan akan diklik)
-document.getElementById('examFrame').addEventListener('mouseenter', () => {
-  iframeHasFocus = true;
-});
+    window.addEventListener('blur', () => {
+      if (!document.hidden) {
+        if (iframeHasFocus) { updateStatus('aman'); }
+        else { updateStatus('keluar'); addViolation('keluar'); }
+      }
+    });
 
-// Deteksi saat mouse keluar dari iframe
-document.getElementById('examFrame').addEventListener('mouseleave', () => {
-  iframeHasFocus = false;
-});
-
-window.addEventListener('blur', () => {
-  if (!document.hidden) {
-    if (iframeHasFocus) {
-      // Blur karena klik di dalam iframe — bukan pelanggaran
-      updateStatus('aman');
-    } else {
-      // Blur karena benar-benar keluar ke aplikasi lain
-      updateStatus('keluar');
-      addViolation('keluar');
-    }
-  }
-});
-
-window.addEventListener('focus', () => {
-  iframeHasFocus = false;
-  updateStatus('aman');
-});
-
-    window.addEventListener('focus', () => updateStatus('aman'));
+    window.addEventListener('focus', () => { iframeHasFocus = false; updateStatus('aman'); });
 
     window.addEventListener('beforeunload', (e) => {
       updateStatus('keluar');
@@ -828,43 +747,38 @@ window.addEventListener('focus', () => {
       return e.returnValue;
     });
 
-    document.addEventListener('contextmenu', (e) => e.preventDefault());
-    document.addEventListener('copy',  (e) => e.preventDefault());
-    document.addEventListener('paste', (e) => e.preventDefault());
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('copy',  e => e.preventDefault());
+    document.addEventListener('paste', e => e.preventDefault());
 
     document.addEventListener('keydown', (e) => {
       if (
         (e.ctrlKey && e.shiftKey && ['I','J','C','U'].includes(e.key.toUpperCase())) ||
         (e.ctrlKey && ['U','S','P'].includes(e.key.toUpperCase())) ||
         e.key === 'F12'
-      ) {
-        e.preventDefault();
-      }
+      ) { e.preventDefault(); }
     });
   }
 
+  /* ─── TIMER ─── */
   function startTimer() {
     timerInterval = setInterval(() => {
       timerSeconds--;
       const m = Math.floor(timerSeconds / 60).toString().padStart(2,'0');
       const s = (timerSeconds % 60).toString().padStart(2,'0');
-      document.getElementById('timerDisplay').textContent = `${m}:${s}`;
+      const display = `${m}:${s}`;
+      document.getElementById('timerDisplay').textContent = display;
 
       if (timerSeconds <= 300) {
-        document.getElementById('timerBadge').classList.add('danger');
+        document.getElementById('timerBadgeSm').classList.add('danger');
       }
 
-      if (timerSeconds <= 0) {
-        clearInterval(timerInterval);
-        selesai();
-      }
+      if (timerSeconds <= 0) { clearInterval(timerInterval); selesai(); }
     }, 1000);
   }
 
   function selesai() {
-    if (pesertaRef) {
-      pesertaRef.update({ status: 'selesai', lastUpdate: Date.now() });
-    }
+    if (pesertaRef) pesertaRef.update({ status: 'selesai', lastUpdate: Date.now() });
     alert('Waktu ujian habis! Terima kasih telah mengerjakan ujian.');
     document.getElementById('examScreen').style.display = 'none';
     document.getElementById('loginScreen').style.display = 'flex';
